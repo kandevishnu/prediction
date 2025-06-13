@@ -1,11 +1,12 @@
-from flask import Flask,render_template,request
+from flask import Flask, render_template, request
 import pickle
 import numpy as np
+import os
 
 app = Flask(__name__)
 
-with open('house_price-pred.pkl','rb') as f :
-    model=pickle.load(f)
+with open('house_price-pred.pkl', 'rb') as f:
+    model = pickle.load(f)
 
 @app.route('/')
 def home():
@@ -13,7 +14,7 @@ def home():
 
 @app.route('/predict', methods=['POST'])
 def predict():
-    features=[
+    features = [
         float(request.form['CRIM']),
         float(request.form['ZN']),
         float(request.form['INDUS']),
@@ -28,14 +29,12 @@ def predict():
         float(request.form['B']),
         float(request.form['LSTAT']),
     ]
-    features_array=np.array([features])
+    features_array = np.array([features])
     prediction = model.predict(features_array)
-    output=round(prediction[0],2)
-    
+    output = round(prediction[0], 2)
+
     return render_template('index.html', prediction_text=f"Predicted Price: {output}")
 
 if __name__ == "__main__":
-    app.run(debug=True)
-    import os
-    port = int(os.environ.get("PORT", 5000))  # Use Render's assigned port
+    port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
